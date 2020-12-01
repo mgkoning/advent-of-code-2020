@@ -9,19 +9,27 @@
 
 (def puzzle-input (map read-int (get-input-lines)))
 
-(defn pairs
-  [[x & xs]]
-  (if (nil? xs)
-    '()
-    (concat (map list (repeat x) xs) (pairs xs))))
+(defn combinations
+  "Creates all combinations of n items from a list"
+  [n [x & xs :as all]]
+  (if (= 1 n)
+    (map list all)
+    (if (nil? xs) 
+      '()
+      (concat (map cons (repeat x) (combinations (- n 1) xs)) (combinations n xs)))))
 
-(defn part1
-  [[head & tail]]
-  (let [[a b] head
-        found (= 2020 (+ a b))]
-    (if found (* a b) (recur tail))))
+(def pairs (partial combinations 2))
+
+(def triples (partial combinations 3))
+
+(defn find-desired-sum
+  [target [head & tail]]
+  (let [found (= target (apply + head))]
+    (if found (apply * head) (recur target tail))))
 
 (defn -main
   [& args]
   (println "Part 1:")
-  (println (part1 (pairs puzzle-input))))
+  (println (find-desired-sum 2020 (pairs puzzle-input)))
+  (println "Part 2:")
+  (println (find-desired-sum 2020 (triples puzzle-input))))
