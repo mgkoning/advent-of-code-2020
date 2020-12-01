@@ -2,25 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using AdventOfCode2020.Shared;
 
-namespace day01 {
+namespace AdventOfCode2020.Day01 {
   class Program {
 
-    private static DirectoryInfo InputsDirectory { get; } = FindInputsDirectory() ??
-      throw new DirectoryNotFoundException("inputs directory could not be determined");
-    private static DirectoryInfo? FindInputsDirectory() {
-      DirectoryInfo? find(DirectoryInfo? start) {
-        if (start == null) { return null; }
-        var maybeInput = new DirectoryInfo(Path.Combine(start.FullName, "input"));
-        return maybeInput.Exists ? maybeInput : find(start.Parent);
-      }
-
-      return find(new DirectoryInfo("."));
-    }
-
+    
     static void Main() {
       var input = File
-        .ReadAllLines(Path.Combine(InputsDirectory.FullName, "day01.txt"))
+        .ReadAllLines(Path.Combine(Input.InputsDirectory.FullName, "day01.txt"))
         .Select(x => int.Parse(x))
         .ToList();
       Part1(input);
