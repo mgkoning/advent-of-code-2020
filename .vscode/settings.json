@@ -1,6 +1,9 @@
 {
   "files.exclude": {
     "**/bin": true,
-    "**/obj": true
+    "**/obj": true,
+    "**/.lein-repl-history": true,
+    "**/.nrepl-port": true,
+    "clojure/**/target": true
   }
 }
