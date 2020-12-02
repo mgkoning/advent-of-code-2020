@@ -25,6 +25,14 @@
   (let [charCount (count (filter #(= char %) password))]
     (and (<= charCount hi) (<= lo charCount))))
 
+(defn valid-password-part2?
+  [{lo :lo
+    hi :hi
+    char :char
+    password :password}]
+  (let [getChar (fn [pw pos] (.charAt pw (- pos 1)))]
+    (not= (= char (getChar password lo)) (= char (getChar password hi)))))
+
 (defn valid-passwords
   [valid-fn input]
   (count (filter valid-fn input)))
@@ -32,4 +40,6 @@
 (defn -main
   [& args]
   (println "Part 1")
-  (println (valid-passwords valid-password-part1? puzzle-input)))
+  (println (valid-passwords valid-password-part1? puzzle-input))
+  (println "Part 2")
+  (println (valid-passwords valid-password-part2? puzzle-input)))
