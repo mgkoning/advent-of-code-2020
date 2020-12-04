@@ -62,7 +62,6 @@
   (every? is-valid-item passport-items))
 
 (defn -main
-  "I don't do a whole lot ... yet."
   [& args]
   (let [passports (read-passports (get-input-lines))
         valid-pass1 (filter is-valid-pass1 passports)]
