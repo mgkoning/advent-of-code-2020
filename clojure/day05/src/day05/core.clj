@@ -12,9 +12,9 @@
 (def puzzle-input (get-input-lines))
 
 (defn parse-pseudo-binary [zeroes ones val]
-  (let [binary-string 
-          (reduce #(clojure.string/replace %1 %2 \0) (reduce #(clojure.string/replace %1 %2 \1) val ones) zeroes)]
-    (parse-int binary-string 2)))
+  (let [ones-replaced (reduce #(clojure.string/replace %1 %2 \1) val ones)
+        zeroes-replaced (reduce #(clojure.string/replace %1 %2 \0) ones-replaced zeroes)]
+    (parse-int zeroes-replaced 2)))
 
 ; old "solution": I shouldn't take the instructions so literally
 (comment "all obsolete"
@@ -50,7 +50,7 @@
   (let [step (fn [[sum min-id max-id] seat-spec]
                 (let [seat-id (parse-pseudo-binary [\F \L] [\B \R] seat-spec)]
                   [(+ sum seat-id) (min min-id seat-id) (max max-id seat-id)]))]
-    (reduce step [0 2048 0] seat-specs)))
+    (reduce step [0 1024 0] seat-specs)))
 
 (defn -main
   [& args]
