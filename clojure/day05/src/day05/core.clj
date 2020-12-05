@@ -5,8 +5,17 @@
   []
   (clojure.string/split-lines (slurp "..\\..\\input\\day05.txt")))
 
+(defn parse-int
+  ([s] (Integer/parseInt s))
+  ([s radix] (Integer/parseInt s radix)))
+
 (def puzzle-input (get-input-lines))
 
+(defn parse-pseudo-binary [zero one val]
+  (let [binary-string (clojure.string/replace (clojure.string/replace val one \1) zero \0)]
+    (parse-int binary-string 2)))
+
+; old "solution": I shouldn't take the instructions so literally
 (defn find-binary [lo hi max instructions]
   (let [step (fn [{min :min max :max} instr]
                 (let [half (+ min (quot (- max min) 2))]
@@ -22,10 +31,10 @@
   (find-binary \F \B 127 instructions))
 
 (defn to-seat [seating-spec]
-  (let [row-spec (take 7 seating-spec)
-        seat-spec (drop 7 seating-spec)
-        row (find-row row-spec)
-        seat (find-seat seat-spec)]
+  (let [row-spec (subs seating-spec 0 7)
+        seat-spec (subs seating-spec 7)
+        row (parse-pseudo-binary \F \B row-spec)
+        seat (parse-pseudo-binary \L \R seat-spec)]
     {:row row :seat seat :id (+ seat (* row 8))}))
 
 (defn find-missing [sorted-seats]
