@@ -14,3 +14,4 @@ pom.xml.asc
 .cpcache/
 [Bb]in/
 [Oo]bj/
+/input/*.txt
