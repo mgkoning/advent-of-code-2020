@@ -20,19 +20,15 @@
         capture-groups (re-find contains-regex spec-line)
         [container & containees] (filter some? (map #(get capture-groups %) (range 1 15 2)))
         containees-parsed (map parse-containee containees)]
-    {:container container :containees containees-parsed}))
+    {container containees-parsed}))
 
-(def bag-rules (map parse-bag-spec (get-input-lines)))
-
-(def bag-rules-map (apply merge (map (fn [{container :container containees :containees}] {container containees}) bag-rules)))
+(def bag-rules (apply merge (map parse-bag-spec (get-input-lines))))
 
 (def contained-by
-  (group-by :color
-    (mapcat 
-      (fn [{container :container containees :containees}]
-        (map 
-          (fn [containee] {:color (:color containee) :container container})
-          containees))
+  (apply (partial merge-with into)
+    (mapcat
+      (fn [[container containees]]
+        (map (fn [containee] {(:color containee) [container]}) containees))
       bag-rules)))
 
 (defn possible-containers
@@ -41,12 +37,12 @@
     (if (nil? color)
       seen
       ; else
-      (let [containers (set (map :container (get contained-by color)))
+      (let [containers (set (get contained-by color))
             new-containers (clojure.set/difference containers seen)]
         (recur (into remaining new-containers) (into seen new-containers))))))
 
 (defn must-contain [color]
-  (let [containees (get bag-rules-map color)
+  (let [containees (get bag-rules color)
         get-count (fn [{count :count color :color}] (+ count (* count (must-contain color))))]
     (apply + (map get-count containees))))
 
