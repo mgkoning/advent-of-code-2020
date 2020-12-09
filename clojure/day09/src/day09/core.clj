@@ -32,9 +32,31 @@
         (recur numbers (conj (pop previousNumbers) head))
         head))))
 
+(defn take-until-sum
+  ([target numbers] (take-until-sum target numbers []))
+  ([target [head & numbers] acc]
+    (let [sum (apply + acc)]
+      (cond
+        (< sum target) (recur target numbers (conj acc head))
+        (< target sum) nil
+        :else acc))))
+
+(defn tails [[x & rest :as coll]]
+  (if (empty? coll)
+    []
+    (cons (seq coll) (lazy-seq (tails rest)))))
+
+(defn find-sum [target numbers]
+  (first (drop-while nil? (map (partial take-until-sum target) (tails numbers)))))
+
 (defn -main
   [& args]
   (let [first-invalid (find-first-invalid puzzle-input)]
     (println "Part 1:")
-    (println first-invalid)))
+    (println first-invalid)
+    (println "Part 2:")
+    (let [sum-range (find-sum first-invalid puzzle-input)
+          minimum (apply min sum-range)
+          maximum (apply max sum-range)]
+      (println (+ minimum maximum)))))
 
