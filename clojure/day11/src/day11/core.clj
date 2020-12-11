@@ -10,19 +10,19 @@
                    (mapcat (fn [row y] (map (fn [val x] {[x y] val}) row (range))) lines (range)))]
     seat-map))
 
-(defn get-neighbours-part1 [seat-map [x y]]
-  (let [adjacents [[(dec x) (dec y)] [(dec x) y] [(dec x) (inc y)]
-                   [x (dec y)] [x (inc y)]
-                   [(inc x) (dec y)] [(inc x) y] [(inc x) (inc y)]]]
-    (map seat-map adjacents)))
-
 (defn add-coord [[x y] [dx dy]] [(+ x dx) (+ y dy)])
 
+(def directions
+  [[-1 -1] [-1 0] [-1 1]
+   [0 -1] [0 1]
+   [1 -1] [1 0] [1 1]])
+
+(defn get-neighbours-part1 [seat-map pos]
+  (let [adjacents (map (partial add-coord pos) directions)]
+    (map seat-map adjacents)))
+
 (defn get-neighbours-part2 [seat-map [x y :as pos]]
-  (let [directions [[-1 -1] [-1 0] [-1 1]
-                    [0 -1] [0 1]
-                    [1 -1] [1 0] [1 1]]
-        get-nearest (fn [pos direction]
+  (let [get-nearest (fn [pos direction]
                       (let [candidate-pos (add-coord pos direction)
                             candidate (seat-map candidate-pos)]
                         (if (= \. candidate) (recur candidate-pos direction) candidate)))]
@@ -45,7 +45,7 @@
   (cons seat-map (lazy-seq (seat-evolution (next-seat-map seat-map threshold get-neighbours-fn) threshold get-neighbours-fn))))
 
 (defn find-stable [[x & [y & _ :as rest]]]
-  (if (= x y) x (find-stable rest)))
+  (if (= x y) x (recur rest)))
 
 (defn count-occupied [seat-map]
   (count (filter #(= \# %) (vals seat-map))))
