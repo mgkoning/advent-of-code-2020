@@ -50,13 +50,20 @@
 (defn count-occupied [seat-map]
   (count (filter #(= \# %) (vals seat-map))))
 
+(defn print-seat-map [seat-map]
+  (let [lines (vals (into (sorted-map) (group-by (fn [[[x y] v]] y) seat-map)))
+        line-str (fn [line] (apply str (vals (into (sorted-map) (map (fn [[[x y] v]] {x v}) line)))))]
+    (clojure.string/join "\n" (map line-str lines))))
+
 (defn -main
   [& args]
   (let [seat-map (get-seating (get-input))]
     (println "Part 1:")
     (println (count-occupied (find-stable (seat-evolution seat-map 4 get-neighbours-part1))))
-    (println "Part 2:")
-    (println (count-occupied (find-stable (seat-evolution seat-map 5 get-neighbours-part2))))))
+    (let [part2-result (find-stable (seat-evolution seat-map 5 get-neighbours-part2))]
+      (println "Part 2:")
+      (println (count-occupied part2-result))
+      (println (print-seat-map part2-result)))))
 
 (def test-input "L.LL.LL.LL
 LLLLLLL.LL
