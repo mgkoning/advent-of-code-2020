@@ -36,7 +36,7 @@
   (str (apply str (repeat (- 36 (count value)) \0)) value))
 
 (defn apply-mask [mask address]
-  (map (fn [m b] (cond (= \0 m) b :else m)) mask address))
+  (map (fn [m a] (if (= \0 m) a m)) mask address))
 
 (defn get-all-addresses [masked-address]
   (let [process-bit (fn [addresses bit]
