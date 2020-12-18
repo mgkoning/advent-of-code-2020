@@ -27,6 +27,6 @@
 (defn -main
   [& args]
   (println "Part 1:")
-  (println (part1 (get-input-lines))
+  (println (part1 (get-input-lines)))
   (println "Part 2:")
-  (println " ... ")))
+  (println " ... "))
