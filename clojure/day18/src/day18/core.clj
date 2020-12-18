@@ -25,15 +25,15 @@
 ; simplified Shunting-yard algorithm (https://en.wikipedia.org/wiki/Shunting-yard_algorithm)
 ; apply operators directly rather than collecting them for output
 (defn parse-expr-shunting [precedences expr]
-  (loop [[cursor & rest] expr
-         output-stack ()
-         op-stack ()]
-    (letfn [(take-ops-to-apply [c [op & ops :as all-ops] popped]
-              (cond
-                (= lparen op) [(reverse popped), all-ops]
-                (nil? op) [(reverse popped), ()]
-                (<= (precedences c) (precedences op)) (recur c ops (cons op popped))
-                :else [(reverse popped), all-ops]))]
+  (letfn [(take-ops-to-apply [c [op & ops :as all-ops] popped]
+            (cond
+              (= lparen op) [(reverse popped), all-ops]
+              (nil? op) [(reverse popped), ()]
+              (<= (precedences c) (precedences op)) (recur c ops (cons op popped))
+              :else [(reverse popped), all-ops]))]
+    (loop [[cursor & rest] expr
+           output-stack ()
+           op-stack ()]
       (cond
         (= \space cursor) (recur rest output-stack op-stack)
         (nil? cursor) (apply-ops output-stack op-stack)
