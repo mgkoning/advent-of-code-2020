@@ -104,6 +104,7 @@
     (let [more-digits (concat digits (range (inc max) (inc 1000000)))
           next-map (build-next-vector more-digits)
           result (play-game2 min 1000000 10000000 [(first digits) next-map])]
+      (println "Part 2:")
       (println (apply * (get-nexts 2 1 result))))))
 
 (def test-input (parse-digits "389125467"))
