@@ -55,27 +55,52 @@
   (let [c' (dec-wrapped c min max)]
     (if (some #{c'} not-allowed) (recur c' not-allowed min max) c')))
 
-(defn crab-move [min max {[r & rs] :right :as zipper}]
-  (let [[zipper' removed] (remove-right 3 zipper)
-        destination (determine-destination r removed min max)]
-    (move-right (insert-after destination removed zipper'))))
-
 (defn move-to [t {[r & rs] :right :as zipper}]
   (if (= t r) zipper (recur t (move-right zipper))))
 
-(defn part1 [digits]
-  (let [min (reduce min digits)
-        max (reduce max digits)
-        all-moves (iterate (partial crab-move min max) (->Zipper () digits))
-        result (first (drop 100 all-moves))]
+(defn crab-move [min max {[r & rs] :right :as zipper}]
+  (let [[zipper' removed] (remove-right 3 zipper)
+        destination (determine-destination r removed min max)
+        result (move-right (insert-after destination removed zipper'))]
+    result))
+
+(defn play-game [min max moves digits]
+  (let [all-moves (iterate (partial crab-move min max) (->Zipper () digits))
+        result (first (drop moves all-moves))]
     (move-to 1 result)))
+
+(defn get-nexts [n from next-map]
+  (loop [i 0 at from nexts []]
+    (if (<= n i)
+      nexts
+      (let [next (next-map at)]
+        (recur (inc i) next (conj nexts next))))))
+
+(defn build-next-map [digits]
+  (reduce conj {} (map (fn [a b] [a b]) digits (drop 1 (cycle digits)))))
+
+(defn crab-move2 [min max [at next-map]]
+  (let [[next1 next2 next3 next4] (get-nexts 4 at next-map)
+        destination (determine-destination at [next1 next2 next3] min max)
+        destination-next (next-map destination)]
+    [next4 (reduce conj next-map [[at next4] [destination next1] [next3 destination-next]])]))
+
+(defn play-game2 [min max moves state]
+  (let [all-moves (iterate (partial crab-move2 min max) state)
+        [_ result] (first (drop moves all-moves))]
+    result))
 
 (defn -main
   [& args]
-  (let [{ls :left [r & rs] :right} (part1 (parse-digits (get-input)))]
+  (let [digits (parse-digits (get-input)) 
+        min (reduce min digits)
+        max (reduce max digits)
+        {ls :left [r & rs] :right} (play-game min max 100 digits)]
     (println "Part 1:")
     (println (str (apply str (reverse ls)) (apply str rs)))
-    (println "Part 2:")
-    (println " ..")))
+    (let [more-digits (concat digits (range (inc max) (inc 1000000)))
+          next-map (build-next-map more-digits)
+          result (play-game2 min 1000000 10000000 [(first digits) next-map])]
+      (println (apply * (get-nexts 2 1 result))))))
 
 (def test-input (parse-digits "389125467"))
