@@ -69,21 +69,24 @@
         result (first (drop moves all-moves))]
     (move-to 1 result)))
 
-(defn get-nexts [n from next-map]
+(defn get-nexts [n from next-vec]
   (loop [i 0 at from nexts []]
     (if (<= n i)
       nexts
-      (let [next (next-map at)]
+      (let [next (next-vec at)]
         (recur (inc i) next (conj nexts next))))))
 
-(defn build-next-map [digits]
-  (reduce conj {} (map (fn [a b] [a b]) digits (drop 1 (cycle digits)))))
+(defn assoc-pair [d [k v]] (assoc d k v))
 
-(defn crab-move2 [min max [at next-map]]
-  (let [[next1 next2 next3 next4] (get-nexts 4 at next-map)
+(defn build-next-vector [digits]
+  (let [vect (into (vector-of :int) (repeat (inc (count digits)) 0))]
+    (reduce assoc-pair vect (map vector digits (drop 1 (cycle digits))))))
+
+(defn crab-move2 [min max [at next-vec]]
+  (let [[next1 next2 next3 next4] (get-nexts 4 at next-vec)
         destination (determine-destination at [next1 next2 next3] min max)
-        destination-next (next-map destination)]
-    [next4 (reduce conj next-map [[at next4] [destination next1] [next3 destination-next]])]))
+        destination-next (next-vec destination)]
+    [next4 (reduce assoc-pair next-vec [[at next4] [destination next1] [next3 destination-next]])]))
 
 (defn play-game2 [min max moves state]
   (let [all-moves (iterate (partial crab-move2 min max) state)
@@ -99,7 +102,7 @@
     (println "Part 1:")
     (println (str (apply str (reverse ls)) (apply str rs)))
     (let [more-digits (concat digits (range (inc max) (inc 1000000)))
-          next-map (build-next-map more-digits)
+          next-map (build-next-vector more-digits)
           result (play-game2 min 1000000 10000000 [(first digits) next-map])]
       (println (apply * (get-nexts 2 1 result))))))
 
