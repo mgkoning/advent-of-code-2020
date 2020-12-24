@@ -1,5 +1,4 @@
 (ns day24.core
-  (:require clojure.set)
   (:gen-class))
 
 (defn parse-long
@@ -18,7 +17,7 @@
       (some #{a} #{\n \s}) (recur bs (conj steps (str a b)))
       :else (throw (Exception. (str "Don't know " a))))))
 
-(defn vec+ [a b] (vec (map + a b)))
+(defn vec3+ [[x1 y1 z1] [x2 y2 z2]] [(+ x1 x2) (+ y1 y2) (+ z1 z2)])
 
 (def moves {
   "w"  [-1  1  0]
@@ -33,13 +32,13 @@
 
 (defn get-black-tiles [input-lines]
   (let [step-lines (map parse-steps input-lines)
-        final-positions (map #(reduce vec+ [0 0 0] (map moves %)) step-lines)
+        final-positions (map #(reduce vec3+ [0 0 0] (map moves %)) step-lines)
         position-counts (apply merge-with + (map #(hash-map % 1) final-positions))
         odd-visits (filter #(odd? (second %)) position-counts)]
     (set (map first odd-visits))))
 
 (defn get-neighbors [t]
-  (map #(vec+ t %) hex-neighbors))
+  (map #(vec3+ t %) hex-neighbors))
 
 (defn flip-tiles [black-tiles]
   (let [all-tiles-to-visit (concat black-tiles (mapcat get-neighbors black-tiles))]
