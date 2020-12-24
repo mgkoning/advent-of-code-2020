@@ -1,4 +1,5 @@
 (ns day24.core
+  (:require clojure.set)
   (:gen-class))
 
 (defn parse-long
@@ -30,17 +31,52 @@
 
 (def hex-neighbors (vals moves))
 
-(defn get-black-tiles [tiles]
-  (let [position-counts (apply merge-with + (map #(hash-map % 1) tiles))
+(defn get-black-tiles [input-lines]
+  (let [step-lines (map parse-steps input-lines)
+        final-positions (map #(reduce vec+ [0 0 0] (map moves %)) step-lines)
+        position-counts (apply merge-with + (map #(hash-map % 1) final-positions))
         odd-visits (filter #(odd? (second %)) position-counts)]
-    (map first odd-visits)))
+    (set (map first odd-visits))))
+
+(defn get-neighbors [t]
+  (map #(vec+ t %) hex-neighbors))
+
+(defn flip-tiles [black-tiles]
+  (let [all-tiles-to-visit (concat black-tiles (mapcat get-neighbors black-tiles))]
+    (letfn [(consider-tile [result v] 
+              (let [neighbors (get-neighbors v)
+                    black-neighbors (count (filter #(contains? black-tiles %) neighbors))
+                    is-black (contains? black-tiles v)
+                    will-be-black (or (== 2 black-neighbors) (and is-black (== 1 black-neighbors)))]
+                (if will-be-black (conj result v) result)))]
+      (reduce consider-tile #{} all-tiles-to-visit))))
 
 (defn -main
   [& args]
-  (let [step-lines (map parse-steps (get-input-lines))
-        final-positions (map #(reduce vec+ [0 0 0] (map moves %)) step-lines)
-        black-tiles (get-black-tiles final-positions)]
+  (let [black-tiles (get-black-tiles (get-input-lines))]
     (println "Part 1:")
     (println (count black-tiles))
     (println "Part 2:")
-    (println " ...")))
+    (println (nth (map count (iterate flip-tiles black-tiles)) 100))))
+
+(def test-input (clojure.string/split-lines
+  "sesenwnenenewseeswwswswwnenewsewsw
+neeenesenwnwwswnenewnwwsewnenwseswesw
+seswneswswsenwwnwse
+nwnwneseeswswnenewneswwnewseswneseene
+swweswneswnenwsewnwneneseenw
+eesenwseswswnenwswnwnwsewwnwsene
+sewnenenenesenwsewnenwwwse
+wenwwweseeeweswwwnwwe
+wsweesenenewnwwnwsenewsenwwsesesenwne
+neeswseenwwswnwswswnw
+nenwswwsewswnenenewsenwsenwnesesenew
+enewnwewneswsewnwswenweswnenwsenwsw
+sweneswneswneneenwnewenewwneswswnese
+swwesenesewenwneswnwwneseswwne
+enesenwswwswneneswsenwnewswseenwsese
+wnwnesenesenenwwnenwsewesewsesesew
+nenewswnwewswnenesenwnesewesw
+eneswnwswnwsenenwnwnwwseeswneewsenese
+neswnwewnwnwseenwseesewsenwsweewe
+wseweeenwnesenwwwswnew"))
