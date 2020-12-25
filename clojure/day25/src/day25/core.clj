@@ -1,9 +1,7 @@
 (ns day25.core
   (:gen-class))
 
-(defn parse-long
-  ([s] (Long/parseLong s))
-  ([s r] (Long/parseLong s r)))
+(defn parse-long [s] (Long/parseLong s))
 
 (defn get-input [] (slurp "..\\..\\input\\day25.txt"))
 (defn get-input-lines [] (clojure.string/split-lines (get-input)))
